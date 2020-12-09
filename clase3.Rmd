@@ -1,0 +1,105 @@
+---
+title: "Clase 3"
+author: "Carla Ulloa Vera"
+date: "09-12-2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+---
+  title: "Ejemplo clase 3"
+author: "Carla Ulloa Vera"
+date: "08-12-2020"
+output: html_document
+---
+  
+  ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(kableExtra)
+```
+
+## Explorando la base de datos msleep
+**Para no mostrar un código o chunck puedo utilizar echo =FALSE**
+  
+  El primer chunk knitr:: es el que determina los codigos de abajo, es decir determina la configuración predeterminada, por ello, por ello si pongo echo= T o F, en dicho chunck, se configurarán para los demás.
+
+```{r}
+data("msleep")
+```
+
+```{r}
+view(msleep)
+```
+
+**Haciendo tablas resúmen**
+  
+  ungrouping output (override with `.groups` argument), este es un tipo de mensaje que aparece al hacer la siguiente función, estos mensajes no son deseables a la hora de hacer un informe. En la configuración del chunk inicial estos mensajes estan predeterminados como TRUE, esto se puede cambiar, agregando **message = FALSE**
+  
+  ```{r}
+msleep %>% group_by(conservation) %>%  summarise(sleep = mean(sleep_total))
+```
+En este documento vamos a explorar la base de datos *msleep*, una base de datos que tiene registro del tiempo diario de sueño de mamiferos.
+
+cache significa que se guarde, cuando trabajemos con analisis mas pesados, con knit perderemos mucho tiempo, esta función permite que se fuarde o no. Existen mas opciones.
+
+## Inline code
+
+Si consideramos todos los datos, el número de horas promedio en que duerme un mamífero de la base de datos es de (aquí va el inline code entre comillas) **`r mean(msleep$sleep_total)`**, recordar que signo peso nos permite extraer una variable.
+
+*Entonces inline code luego de knitear, se convierte en el valor de la función que aplicamos dentro de dicho inlinecode*
+  
+  Sin embargo, este inlinecode, apareció con muchos decimales, para remediar esto, usamos round.**`r round(mean(msleep$sleep_total), 2)`**
+  
+  Esto también se puede hacer con pipeline: `r msleep$sleep_total %>%  mean() %>%  round(2)`
+
+## Tomar muestra de una base de datos
+
+A través de la función *sample_frac* de la librería dyplr vamos a obtener una fracción, una muestra de la mitad del tamaño de la base de datos original.
+
+
+```{r}
+msleep2 = msleep
+
+msleep2 %>%  sample_frac(size = 0.5) %>% nrow()
+```
+**`r msleep2$sleep_total %>%  mean() %>%  round(2)`**
+  Entonces cada vez que knitee esto, van a salir nuevos datos, debido a que cada vez, va a escoger una distinta porción aleatoria de la mitad de los datos de la base original.Esto sirve para arreglar cambios en la base de datos, o ir actualizando una base de datos que cambia regularmente como la que vimos en clases de COVID.
+
+*no logré que me cambie la muestra*
+  
+  **También el inlinecode, nos sirve para obtener valores de p, diferencias estadísticas, y pueden ser vectores o tablas, lo veremos mas adelante**
+  
+  ## Tablas
+  *solo puse el chunk de la base de datos de nuevo, para no enredarme*
+  
+  La tabla de arriba era muy fea, con códigos raros, para hacerla un poco mas ordenada podemos usa directamente la función *Kable* y con *kable_styling* y *bootstrao_option* exclusivo de html, puedo ir configurando parte del diseño adicional de la tabla
+
+stripped= para líneas
+
+hover= filas seleccionables
+
+digits= numero de decimales
+
+caption= título de la tabla
+
+SD= sd desviación standar
+
+arrange= para ordenar la tabla de acuerdo a alguna variable, ej. Sleep, se ordena desde el que más duerme hasta el que menos duerme y desc, es para poner el orden en decenso
+
+*no pude correr este código, problemas con Kable:*
+  
+  **DF = msleep %>% group_by(conservation) %>%  summarise(sleep = mean(sleep_total)) %>%  arrange(desc(Sleep)))**
+  
+  **kable(DF, DIGITS =3, CAPTION = "En esta tabla vemos el número promedio de horas de sueño de mamíferos agripados según su estado de conservación de acuerdo a la IUCN") %>% kable_styling(bootstrap_options = c=("striped", "hover"), full_width = F)**
+  
+  ## Tablas largas
+  
+  puedo hacer una tabla con scroll, es decir con barra de deslizamiento, se hace a través de la función *scroll_box* y con *height* y *width*, se modifica el tamaño de pixeles, de la tabla 
+
+**data("msleep")
+kable(msleep, digits = 2) %>% kable_material_dark() %>% scroll_box(height = )**
+  
